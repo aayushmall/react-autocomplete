@@ -134,6 +134,8 @@ export default function App() {
   const [users, setUsers] = React.useState([]);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [keyHover, setKeyHover] = React.useState(0);
+  const [showSuggestions, setShowSuggestions] = React.useState(false);
+
   const refs = [];
 
   const handleChane = (e) => {
@@ -194,8 +196,10 @@ export default function App() {
           filteredUsers.push(user);
         }
       });
+      setShowSuggestions(true);
     } else {
       setSearchTerm("");
+      setShowSuggestions(false);
     }
 
     setUsers(filteredUsers);
@@ -210,7 +214,13 @@ export default function App() {
   };
 
   const handleOnKeyDown = (e) => {
-    if (e.keyCode === 38) {
+    if (e.keyCode === 13) {
+      setSearchTerm(
+        `${users[keyHover].id} ${users[keyHover].name} ${users[keyHover].address} ${users[keyHover].pincode}`
+      );
+      setShowSuggestions(false);
+      setKeyHover(0);
+    } else if (e.keyCode === 38) {
       if (keyHover === 0) {
         return;
       }
@@ -228,6 +238,13 @@ export default function App() {
     }
   };
 
+  const handleClick = (index) => {
+    setSearchTerm(
+      `${users[index].id} ${users[index].name} ${users[index].address} ${users[index].pincode}`
+    );
+    setShowSuggestions(false);
+  };
+
   return (
     <div className="App">
       <h1>Search Users</h1>
@@ -237,67 +254,71 @@ export default function App() {
           id="myInput"
           type="text"
           name="users"
+          value={searchTerm}
           placeholder="Search Users By Id, Name ..."
           onChange={handleChane}
           onKeyDown={handleOnKeyDown}
         />
         <div id="autocomplete-list" className="autocomplete-items">
-          {searchTerm.length > 0 && users.length === 0 && (
-            <div> No Results Found</div>
-          )}
-          {users.map((user, index) => {
-            const ref = React.createRef();
-            refs.push(ref);
+          {showSuggestions &&
+            (users.length === 0 ? (
+              <div> No Results Found</div>
+            ) : (
+              users.map((user, index) => {
+                const ref = React.createRef();
+                refs.push(ref);
 
-            return (
-              <div
-                key={index}
-                onMouseOver={() => handleHover(ref)}
-                ref={ref}
-                className={index === keyHover ? "highlight-active" : ""}
-              >
-                {user.idB ? (
-                  <span>
-                    {user.idA} <span className="highlight">{user.idB}</span>
-                    {user.idC}
-                  </span>
-                ) : (
-                  `${user.id}`
-                )}
-                <br />
-                <i>
-                  {user.nameB ? (
-                    <span>
-                      {user.nameA}{" "}
-                      <span className="highlight">{user.nameB}</span>
-                      {user.nameC}
-                    </span>
-                  ) : (
-                    `${user.name}`
-                  )}
-                </i>
-                <br />
-                {user.addressB ? (
-                  <span>
-                    {user.addressA}{" "}
-                    <span className="highlight">{user.addressB}</span>
-                    {user.addressC}
-                  </span>
-                ) : (
-                  `${user.address}`
-                )}
-                {user.pincodeB ? (
-                  <span>
-                    {user.pincodeA}{" "}
-                    <span className="highlight">{user.pincodeB}</span>
-                    {user.pincodeC}
-                  </span>
-                ) : (
-                  `${user.pincode}`
-                )}
-              </div>
-            );
-          })}
+                return (
+                  <div
+                    key={index}
+                    onMouseOver={() => handleHover(ref)}
+                    ref={ref}
+                    onClick={() => handleClick(index)}
+                    className={index === keyHover ? "highlight-active" : ""}
+                  >
+                    {user.idB ? (
+                      <span>
+                        {user.idA} <span className="highlight">{user.idB}</span>
+                        {user.idC}
+                      </span>
+                    ) : (
+                      `${user.id}`
+                    )}
+                    <br />
+                    <i>
+                      {user.nameB ? (
+                        <span>
+                          {user.nameA}{" "}
+                          <span className="highlight">{user.nameB}</span>
+                          {user.nameC}
+                        </span>
+                      ) : (
+                        `${user.name}`
+                      )}
+                    </i>
+                    <br />
+                    {user.addressB ? (
+                      <span>
+                        {user.addressA}{" "}
+                        <span className="highlight">{user.addressB}</span>
+                        {user.addressC}
+                      </span>
+                    ) : (
+                      `${user.address}`
+                    )}
+                    {user.pincodeB ? (
+                      <span>
+                        {user.pincodeA}{" "}
+                        <span className="highlight">{user.pincodeB}</span>
+                        {user.pincodeC}
+                      </span>
+                    ) : (
+                      `${user.pincode}`
+                    )}
+                  </div>
+                );
+              })
+            ))}
         </div>
       </div>
     </div>
